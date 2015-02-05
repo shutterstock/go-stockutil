@@ -40,19 +40,44 @@ func DiffuseMap(data map[string]interface{}, fieldJoiner string) (map[string]int
 }
 
 
-// func GetPathWithIndex(data *simplejson.Json, path []string) *simplejson.Json {
-//     out := data
+func DeepGet(data interface{}, path []string, fallback interface{}) interface{} {
+    current := data
 
-//     for _, part := range path {
-//         if i, err := strconv.Atoi(part); err == nil {
-//             out = out.GetIndex(i)
-//         }else{
-//             out = out.Get(part)
-//         }
-//     }
+    for i := 0; i < len(path); i++ {
+        part := path[i]
 
-//     return out
-// }
+        switch current.(type) {
+    //  arrays
+        case []interface{}:
+            currentAsArray := current.([]interface{})
+
+            if stringutil.IsInteger(part) {
+                if partIndex, err := strconv.Atoi(part); err == nil {
+                    if partIndex < len(currentAsArray) {
+                        if value := currentAsArray[partIndex]; value != nil {
+                            current = value
+                            continue
+                        }
+                    }
+                }
+            }
+
+            return fallback
+
+    //  maps
+        case map[string]interface{}:
+            currentAsMap := current.(map[string]interface{})
+
+            if value, ok := currentAsMap[part]; !ok {
+                return fallback
+            }else{
+                current = value
+            }
+        }
+    }
+
+    return current
+}
 
 
 
