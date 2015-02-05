@@ -25,6 +25,13 @@ fi
 # build it!
 for pkg in *util; do
   if [ -d $pkg ]; then
-    CGO_ENABLED=0 go build -a $GOFLAGS ${REPO_PATH}/$pkg
+    case $1 in
+    test)
+      CGO_ENABLED=0 go test -a $GOFLAGS ${REPO_PATH}/$pkg
+      ;;
+    *)
+      CGO_ENABLED=0 go build -a $GOFLAGS ${REPO_PATH}/$pkg
+      ;;
+    esac
   fi
 done
