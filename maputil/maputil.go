@@ -33,7 +33,7 @@ func DiffuseMap(data map[string]interface{}, fieldJoiner string) (map[string]int
         value, _ := data[key]
         keyParts := strings.Split(key, fieldJoiner)
 
-        output = DeepSet    (output, keyParts, value).(map[string]interface{})
+        output = DeepSet(output, keyParts, value).(map[string]interface{})
     }
 
     return output, nil
@@ -56,7 +56,7 @@ func DiffuseMap(data map[string]interface{}, fieldJoiner string) (map[string]int
 
 
 
-func DeepSet    (data interface{}, path []string, value interface{}) interface{} {
+func DeepSet(data interface{}, path []string, value interface{}) interface{} {
     if len(path) == 0 {
         return data
     }
@@ -106,7 +106,7 @@ func DeepSet    (data interface{}, path []string, value interface{}) interface{}
 
 
         //  recurse into our cool array and do awesome stuff with it
-            dataMap[first] = DeepSet    (curVal.([]interface{}), rest, value).([]interface{})
+            dataMap[first] = DeepSet(curVal.([]interface{}), rest, value).([]interface{})
             return dataMap
 
 
@@ -130,7 +130,7 @@ func DeepSet    (data interface{}, path []string, value interface{}) interface{}
                     }
 
                     if curIndex < len(dataArray) {
-                        dataArray[curIndex] = DeepSet    (dataArray[curIndex], rest, value)
+                        dataArray[curIndex] = DeepSet(dataArray[curIndex], rest, value)
                         return dataArray
                     }
                 }
@@ -151,7 +151,7 @@ func DeepSet    (data interface{}, path []string, value interface{}) interface{}
                 }
             //  <--------|
 
-                dataMap[first] = DeepSet    (dataMap[first], rest, value)
+                dataMap[first] = DeepSet(dataMap[first], rest, value)
                 return dataMap
             }
         }

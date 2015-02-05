@@ -10,7 +10,7 @@ func TestDeepSetString(t *testing.T) {
     input := make(map[string]interface{})
     testValue := "test-string"
 
-    input = DeepSet    (input, []string{"str"}, testValue).(map[string]interface{})
+    input = DeepSet(input, []string{"str"}, testValue).(map[string]interface{})
 
     if value, ok := input["str"]; !ok {
         t.Errorf("want key 'str' to exist, it does not")
@@ -24,7 +24,7 @@ func TestDeepSetBool(t *testing.T) {
     input := make(map[string]interface{})
     testValue := true
 
-    input = DeepSet    (input, []string{"bool"}, testValue).(map[string]interface{})
+    input = DeepSet(input, []string{"bool"}, testValue).(map[string]interface{})
 
     if value, ok := input["bool"]; !ok {
         t.Errorf("want key 'bool' to exist, it does not")
@@ -39,10 +39,10 @@ func TestDeepSetArray(t *testing.T) {
     testValues := []string{"first", "second"}
 
     for i, tv := range testValues {
-        input = DeepSet    (input, []string{"top-array", fmt.Sprint(i) }, tv).(map[string]interface{})
+        input = DeepSet(input, []string{"top-array", fmt.Sprint(i) }, tv).(map[string]interface{})
     }
 
-    // input = DeepSet    (input, []string{"top-array"}, 3.4).(map[string]interface{})
+    // input = DeepSet(input, []string{"top-array"}, 3.4).(map[string]interface{})
 
     if topArray, ok := input["top-array"]; !ok {
         t.Errorf("want key 'topArray' to exist, it does not")
@@ -64,8 +64,8 @@ func TestDeepSetArray(t *testing.T) {
 func TestDeepSetNestedMapCreation(t *testing.T) {
     input := make(map[string]interface{})
 
-    input = DeepSet    (input, []string{"deeply", "nested", "map"}, true).(map[string]interface{})
-    input = DeepSet    (input, []string{"deeply", "nested", "count"}, 2).(map[string]interface{})
+    input = DeepSet(input, []string{"deeply", "nested", "map"}, true).(map[string]interface{})
+    input = DeepSet(input, []string{"deeply", "nested", "count"}, 2).(map[string]interface{})
 
     if deeply, ok := input["deeply"]; !ok {
         t.Errorf("want key 'deeply' to exist, it does not")
