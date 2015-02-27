@@ -24,3 +24,5 @@ _testmain.go
 *.prof
 
 /gopath
+/coverage.html
+/profile.file

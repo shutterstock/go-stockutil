@@ -12,6 +12,14 @@ func TestDeepGetScalar(t *testing.T) {
     if v := DeepGet(input, []string{"deeply", "nested", "value"}, nil); v == nil {  
         t.Errorf("%s\n", v)
     }
+
+    if v := DeepGet(input, []string{"deeply", "nested", "value2"}, true); v != true {  
+        t.Errorf("%s\n", v)
+    }
+
+    if v := DeepGet(input, []string{"deeply", "nested", "value2"}, "fallback"); v != "fallback" {
+        t.Errorf("%s\n", v)
+    }
 }
 
 func TestDeepGetArrayElement(t *testing.T) {

@@ -6,13 +6,23 @@ import (
     _ "encoding/json"
 )
 
+func TestDeepSetNothing(t *testing.T) {
+    output := make(map[string]interface{})
+    output = DeepSet(output, []string{}, "yay").(map[string]interface{})
+
+    if len(output) > 0 {
+        t.Errorf("Output should be empty, has length of %d", len(output))
+    }
+}
+
+
 func TestDeepSetString(t *testing.T) {
-    input := make(map[string]interface{})
+    output := make(map[string]interface{})
     testValue := "test-string"
 
-    input = DeepSet(input, []string{"str"}, testValue).(map[string]interface{})
+    output = DeepSet(output, []string{"str"}, testValue).(map[string]interface{})
 
-    if value, ok := input["str"]; !ok {
+    if value, ok := output["str"]; !ok {
         t.Errorf("want key 'str' to exist, it does not")
     }else if value != testValue {
         t.Errorf("want 'str' == %q, got: %q", testValue, value)
@@ -21,12 +31,12 @@ func TestDeepSetString(t *testing.T) {
 
 
 func TestDeepSetBool(t *testing.T) {
-    input := make(map[string]interface{})
+    output := make(map[string]interface{})
     testValue := true
 
-    input = DeepSet(input, []string{"bool"}, testValue).(map[string]interface{})
+    output = DeepSet(output, []string{"bool"}, testValue).(map[string]interface{})
 
-    if value, ok := input["bool"]; !ok {
+    if value, ok := output["bool"]; !ok {
         t.Errorf("want key 'bool' to exist, it does not")
     }else if value != testValue {
         t.Errorf("want 'bool' == %s, got: %s", testValue, value)
@@ -35,16 +45,16 @@ func TestDeepSetBool(t *testing.T) {
 
 
 func TestDeepSetArray(t *testing.T) {
-    input := make(map[string]interface{})
+    output := make(map[string]interface{})
     testValues := []string{"first", "second"}
 
     for i, tv := range testValues {
-        input = DeepSet(input, []string{"top-array", fmt.Sprint(i) }, tv).(map[string]interface{})
+        output = DeepSet(output, []string{"top-array", fmt.Sprint(i) }, tv).(map[string]interface{})
     }
 
-    // input = DeepSet(input, []string{"top-array"}, 3.4).(map[string]interface{})
+    // output = DeepSet(output, []string{"top-array"}, 3.4).(map[string]interface{})
 
-    if topArray, ok := input["top-array"]; !ok {
+    if topArray, ok := output["top-array"]; !ok {
         t.Errorf("want key 'topArray' to exist, it does not")
     }else{
         switch topArray.(type) {
@@ -62,12 +72,12 @@ func TestDeepSetArray(t *testing.T) {
 
 
 func TestDeepSetNestedMapCreation(t *testing.T) {
-    input := make(map[string]interface{})
+    output := make(map[string]interface{})
 
-    input = DeepSet(input, []string{"deeply", "nested", "map"}, true).(map[string]interface{})
-    input = DeepSet(input, []string{"deeply", "nested", "count"}, 2).(map[string]interface{})
+    output = DeepSet(output, []string{"deeply", "nested", "map"}, true).(map[string]interface{})
+    output = DeepSet(output, []string{"deeply", "nested", "count"}, 2).(map[string]interface{})
 
-    if deeply, ok := input["deeply"]; !ok {
+    if deeply, ok := output["deeply"]; !ok {
         t.Errorf("want key 'deeply' to exist, it does not")
     }else{
         deeplyMap := deeply.(map[string]interface{})
@@ -94,25 +104,25 @@ func TestDeepSetNestedMapCreation(t *testing.T) {
 
 
 func TestDiffuseMap(t *testing.T) {
-    input := make(map[string]interface{})
+    output := make(map[string]interface{})
 
-    input["name"]                    = "test.thing.name"
-    input["enabled"]                 = true
-    input["cool.beans"]              = "yep"
-    input["tags.0"]                  = "base"
-    input["tags.1"]                  = "other"
-    input["devices.0.name"]          = "lo"
-    input["devices.1.name"]          = "eth0"
-    input["devices.1.peers.0"]       = "0.0.0.0"
-    input["devices.1.peers.1"]       = "1.1.1.1"
-    input["devices.1.peers.2"]       = "2.2.2.2"
-    input["devices.1.switch.0.name"] = "aa:bb:cc:dd:ee:ff"
-    input["devices.1.switch.0.ip"]   = "111.222.0.1"
-    input["devices.1.switch.1.name"] = "cc:dd:ee:ff:bb:dd"
-    input["devices.1.switch.1.ip"]   = "111.222.0.2"
+    output["name"]                    = "test.thing.name"
+    output["enabled"]                 = true
+    output["cool.beans"]              = "yep"
+    output["tags.0"]                  = "base"
+    output["tags.1"]                  = "other"
+    output["devices.0.name"]          = "lo"
+    output["devices.1.name"]          = "eth0"
+    output["devices.1.peers.0"]       = "0.0.0.0"
+    output["devices.1.peers.1"]       = "1.1.1.1"
+    output["devices.1.peers.2"]       = "2.2.2.2"
+    output["devices.1.switch.0.name"] = "aa:bb:cc:dd:ee:ff"
+    output["devices.1.switch.0.ip"]   = "111.222.0.1"
+    output["devices.1.switch.1.name"] = "cc:dd:ee:ff:bb:dd"
+    output["devices.1.switch.1.ip"]   = "111.222.0.2"
 
 
-    if output, err := DiffuseMap(input, "."); err != nil {
+    if output, err := DiffuseMap(output, "."); err != nil {
         t.Errorf("Error diffusing map: %s", err)
     }else{
     //  name
