@@ -5,6 +5,7 @@ import (
     "strconv"
     "sort"
     "github.com/shutterstock/go-stockutil/stringutil"
+    "log"
 )
 
 
@@ -115,24 +116,29 @@ func DeepSet(data interface{}, path []string, value interface{}) interface{} {
     //  ================================
     //  is `first' numeric (an array index)
         if stringutil.IsInteger(rest[0]) {
-            dataMap := data.(map[string]interface{})
+            switch data.(type) {
+            case map[string]interface{}:
+              dataMap := data.(map[string]interface{})
 
-        //  is the value at `first' in the map isn't present or isn't an array, create it
-        //  -------->
-            curVal, _ := dataMap[first]
+          //  is the value at `first' in the map isn't present or isn't an array, create it
+          //  -------->
+              curVal, _ := dataMap[first]
+ 
+              switch curVal.(type) {
+              case []interface{}:
+              default:
+                  dataMap[first] = make([]interface{}, 0)
+                  curVal, _ = dataMap[first]
+              }
+          //  <--------|
 
-            switch curVal.(type) {
-            case []interface{}:
+
+          //  recurse into our cool array and do awesome stuff with it
+              dataMap[first] = DeepSet(curVal.([]interface{}), rest, value).([]interface{})
+              return dataMap
             default:
-                dataMap[first] = make([]interface{}, 0)
-                curVal, _ = dataMap[first]
+              log.Printf("WHAT %s/%s", first, rest)
             }
-        //  <--------|
-
-
-        //  recurse into our cool array and do awesome stuff with it
-            dataMap[first] = DeepSet(curVal.([]interface{}), rest, value).([]interface{})
-            return dataMap
 
 
     //  Intermediate Map Processing
