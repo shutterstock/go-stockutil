@@ -20,6 +20,16 @@ func StringKeys(input map[string]interface{}) []string {
     return keys
 }
 
+func MapValues(input map[string]interface{}) []interface{} {
+    values := make([]interface{}, 0)
+
+    for _, value := range input {
+        values = append(values, value)
+    }
+
+    return values
+}
+
 // Take a flat (non-nested) map keyed with fields joined on fieldJoiner and return a
 // deeply-nested map
 //
