@@ -6,6 +6,7 @@ import (
     "sort"
     "github.com/shutterstock/go-stockutil/stringutil"
     "log"
+    "reflect"
 )
 
 
@@ -38,6 +39,45 @@ func DiffuseMap(data map[string]interface{}, fieldJoiner string) (map[string]int
     }
 
     return output, nil
+}
+
+
+// Take a deeply-nested map and return a flat (non-nested) map with keys whose intermediate tiers are joined with fieldJoiner
+//
+func CoalesceMap(data map[string]interface{}, fieldJoiner string) (map[string]interface{}, error) {
+    return deepGetValues([]string{}, fieldJoiner, data), nil
+}
+
+
+func deepGetValues(keys []string, joiner string, data interface{}) map[string]interface{} {
+    rv := make(map[string]interface{})
+    
+    switch reflect.TypeOf(data).Kind() {
+    case reflect.Map:
+        for k, v := range data.(map[string]interface{}){
+            newKey := keys
+            newKey = append(newKey, k)
+
+            for kk, vv := range deepGetValues(newKey, joiner, v) {
+                rv[kk] = vv
+            }
+        }
+
+    case reflect.Slice, reflect.Array:
+        for i, value := range data.([]interface{}) {
+            newKey := keys
+            newKey = append(newKey, strconv.Itoa(i))
+
+            for k, v := range deepGetValues(newKey, joiner, value){
+                rv[k] = v
+            }
+        }
+
+    default:
+        rv[strings.Join(keys, joiner)] = data
+    }
+
+    return rv
 }
 
 
