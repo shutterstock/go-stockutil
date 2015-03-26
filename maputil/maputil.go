@@ -5,7 +5,7 @@ import (
     "strconv"
     "sort"
     "github.com/shutterstock/go-stockutil/stringutil"
-    "log"
+    _ "log"
     "reflect"
 )
 
@@ -62,29 +62,31 @@ func CoalesceMap(data map[string]interface{}, fieldJoiner string) (map[string]in
 func deepGetValues(keys []string, joiner string, data interface{}) map[string]interface{} {
     rv := make(map[string]interface{})
     
-    switch reflect.TypeOf(data).Kind() {
-    case reflect.Map:
-        for k, v := range data.(map[string]interface{}){
-            newKey := keys
-            newKey = append(newKey, k)
+    if data != nil {
+        switch reflect.TypeOf(data).Kind() {
+        case reflect.Map:
+            for k, v := range data.(map[string]interface{}){
+                newKey := keys
+                newKey = append(newKey, k)
 
-            for kk, vv := range deepGetValues(newKey, joiner, v) {
-                rv[kk] = vv
+                for kk, vv := range deepGetValues(newKey, joiner, v) {
+                    rv[kk] = vv
+                }
             }
-        }
 
-    case reflect.Slice, reflect.Array:
-        for i, value := range data.([]interface{}) {
-            newKey := keys
-            newKey = append(newKey, strconv.Itoa(i))
+        case reflect.Slice, reflect.Array:
+            for i, value := range data.([]interface{}) {
+                newKey := keys
+                newKey = append(newKey, strconv.Itoa(i))
 
-            for k, v := range deepGetValues(newKey, joiner, value){
-                rv[k] = v
+                for k, v := range deepGetValues(newKey, joiner, value){
+                    rv[k] = v
+                }
             }
-        }
 
-    default:
-        rv[strings.Join(keys, joiner)] = data
+        default:
+            rv[strings.Join(keys, joiner)] = data
+        }
     }
 
     return rv
@@ -187,7 +189,7 @@ func DeepSet(data interface{}, path []string, value interface{}) interface{} {
               dataMap[first] = DeepSet(curVal.([]interface{}), rest, value).([]interface{})
               return dataMap
             default:
-              log.Printf("WHAT %s/%s", first, rest)
+              // log.Printf("WHAT %s/%s", first, rest)
             }
 
 

@@ -29,8 +29,7 @@ for pkg in *util; do
   if [ -d $pkg ]; then
     case $1 in
     test)
-      CGO_ENABLED=0 go test -test.v -coverprofile profile.file -a $GOFLAGS ${REPO_PATH}/$pkg
-      go tool cover -html=profile.file -o coverage.html
+      CGO_ENABLED=0 go test -test.v -coverprofile $pkg-profile.file -a $GOFLAGS ${REPO_PATH}/$pkg
       ;;
     *)
       CGO_ENABLED=0 go build -a $GOFLAGS ${REPO_PATH}/$pkg

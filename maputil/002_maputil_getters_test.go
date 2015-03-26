@@ -4,6 +4,20 @@ import (
     "testing"
 )
 
+func TestGetNil(t *testing.T) {
+    input := make(map[string]interface{})
+    level1 := make(map[string]interface{})
+    
+    level1["nilvalue"] = nil
+
+    input["test"] = level1
+
+    if v := DeepGet(input, []string{"test", "nilvalue"}, "nope"); v == "nope" {  
+        t.Errorf("%s\n", v)
+    }
+}
+
+
 func TestDeepGetScalar(t *testing.T) {
     input := make(map[string]interface{})
     
