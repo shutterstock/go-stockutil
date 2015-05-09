@@ -15,7 +15,7 @@ func TestDiffuseOneTierScalar(t *testing.T) {
     input["enabled"] = true
     input["float"] = 2.7
 
-    if output, err = DiffuseMap(input, "."); err != nil {  
+    if output, err = DiffuseMap(input, "."); err != nil {
         t.Errorf("%s\n", err)
     }
 
@@ -44,7 +44,7 @@ func TestDiffuseOneTierComplex(t *testing.T) {
     input["numary"] = []int{ 9, 7, 3 }
     input["things"] = map[string]int{ "one": 1, "two": 2, "three": 3 }
 
-    if output, err = DiffuseMap(input, "."); err != nil {  
+    if output, err = DiffuseMap(input, "."); err != nil {
         t.Errorf("%s\n", err)
     }
 
@@ -95,7 +95,7 @@ func TestDiffuseMultiTierScalar(t *testing.T) {
     input["items.1"] = 77
     input["items.2"] = 82
 
-    if output, err = DiffuseMap(input, "."); err != nil {  
+    if output, err = DiffuseMap(input, "."); err != nil {
         t.Errorf("%s\n", err)
     }
 
@@ -126,7 +126,7 @@ func TestDiffuseMultiTierComplex(t *testing.T) {
     input["items.2.name"] = "Third"
     input["items.2.age"]  = 82
 
-    if output, err = DiffuseMap(input, "."); err != nil {  
+    if output, err = DiffuseMap(input, "."); err != nil {
         t.Errorf("%s\n", err)
     }
 
@@ -160,7 +160,7 @@ func TestDiffuseMultiTierMixed(t *testing.T) {
     input["items.1.tags"] = []string{ "thing", "still-other", "more-other" }
     input["items.2.tags"] = []string{ "last" }
 
-    if output, err = DiffuseMap(input, "."); err != nil {  
+    if output, err = DiffuseMap(input, "."); err != nil {
         t.Errorf("%s\n", err)
     }
 

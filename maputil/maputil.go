@@ -1,6 +1,7 @@
 package maputil
 
 import (
+    "fmt"
     "strings"
     "strconv"
     "sort"
@@ -34,7 +35,17 @@ func MapValues(input map[string]interface{}) []interface{} {
 // deeply-nested map
 //
 func DiffuseMap(data map[string]interface{}, fieldJoiner string) (map[string]interface{}, error) {
-    output     := make(map[string]interface{})
+    rv, _ := DiffuseMapTyped(data, fieldJoiner, "")
+    return rv, nil
+}
+
+
+// Take a flat (non-nested) map keyed with fields joined on fieldJoiner and return a
+// deeply-nested map
+//
+func DiffuseMapTyped(data map[string]interface{}, fieldJoiner string, typePrefixSeparator string) (map[string]interface{}, []error) {
+    errs   := make([]error, 0)
+    output := make(map[string]interface{})
 
 //  get the list of keys and sort them because order in a map is undefined
     dataKeys := StringKeys(data)
@@ -42,13 +53,38 @@ func DiffuseMap(data map[string]interface{}, fieldJoiner string) (map[string]int
 
 //  for each data item
     for _, key := range dataKeys {
+        var keyParts []string
+
         value, _ := data[key]
-        keyParts := strings.Split(key, fieldJoiner)
+
+    //  handle "typed" maps in which the type information is embedded
+        if typePrefixSeparator != "" {
+            typeKeyPair := strings.SplitN(key, typePrefixSeparator, 2)
+
+            if len(typeKeyPair) == 2 {
+                key = typeKeyPair[1]
+
+                if v, err := coerceIntoType(value, typeKeyPair[0]); err == nil {
+                    value = v
+                }else{
+                    errs = append(errs, err)
+                }
+            }else{
+                if v, err := coerceIntoType(value, `str`); err == nil {
+                    value = v
+                }else{
+                    errs = append(errs, err)
+                }
+            }
+
+        }
+
+        keyParts = strings.Split(key, fieldJoiner)
 
         output = DeepSet(output, keyParts, value).(map[string]interface{})
     }
 
-    return output, nil
+    return output, errs
 }
 
 
@@ -58,10 +94,28 @@ func CoalesceMap(data map[string]interface{}, fieldJoiner string) (map[string]in
     return deepGetValues([]string{}, fieldJoiner, data), nil
 }
 
+// Take a deeply-nested map and return a flat (non-nested) map with keys whose intermediate tiers are joined with fieldJoiner
+// Additionally, values will be converted to strings and keys will be prefixed with the datatype of the value
+//
+func CoalesceMapTyped(data map[string]interface{}, fieldJoiner string, typePrefixSeparator string) (map[string]interface{}, []error) {
+    errs := make([]error, 0)
+    rv := make(map[string]interface{})
+
+    for k, v := range deepGetValues([]string{}, fieldJoiner, data) {
+        if stringVal, err := stringutil.ToString(v); err == nil {
+            rv[prepareCoalescedKey(k, v, typePrefixSeparator)] = stringVal
+        }else{
+            errs = append(errs, err)
+        }
+    }
+
+    return rv, errs
+}
+
 
 func deepGetValues(keys []string, joiner string, data interface{}) map[string]interface{} {
     rv := make(map[string]interface{})
-    
+
     if data != nil {
         switch reflect.TypeOf(data).Kind() {
         case reflect.Map:
@@ -92,6 +146,64 @@ func deepGetValues(keys []string, joiner string, data interface{}) map[string]in
     return rv
 }
 
+
+func prepareCoalescedKey(key string, value interface{}, typePrefixSeparator string) string {
+    if typePrefixSeparator == "" {
+        return key
+    }else{
+        var datatype string
+
+        switch reflect.TypeOf(value).Kind() {
+        case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64,
+             reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+            datatype = "int"
+        case reflect.Float32, reflect.Float64:
+            datatype = "float"
+        case reflect.Bool:
+            datatype = "bool"
+        case reflect.String:
+            datatype = "str"
+        default:
+            return key
+        }
+
+        return datatype + typePrefixSeparator + key
+    }
+}
+
+
+func coerceIntoType(in interface{}, typeName string) (interface{}, error) {
+//  make sure `in' is a string, error out if not
+    if inStr, err := stringutil.ToString(in); err == nil {
+        switch typeName {
+        case `bool`:
+            if v, err := strconv.ParseBool(inStr); err == nil {
+                return interface{}(v), nil
+            }else{
+                return nil, fmt.Errorf("Unable to convert '%s' into a boolean", inStr)
+            }
+        case `int`:
+            if v, err := strconv.ParseInt(inStr, 10, 64); err == nil {
+                return interface{}(v), nil
+            }else{
+                return nil, fmt.Errorf("Unable to convert '%s' into an integer", inStr)
+            }
+        case `float`:
+            if v, err := strconv.ParseFloat(inStr, 64); err == nil {
+                return interface{}(v), nil
+            }else{
+                return nil, fmt.Errorf("Unable to convert '%s' into a float", inStr)
+            }
+        case `str`:
+            return interface{}(inStr), nil
+        default:
+            return in, fmt.Errorf("Unknown conversion type '%s'", typeName)
+        }
+
+    }else{
+        return in, nil
+    }
+}
 
 func DeepGet(data interface{}, path []string, fallback interface{}) interface{} {
     current := data
@@ -150,11 +262,11 @@ func DeepSet(data interface{}, path []string, value interface{}) interface{} {
 //    this is where the value we're setting actually gets set/appended
     if len(rest) == 0 {
         switch data.(type) {
-        // ARRAY
+    //  parent element is an ARRAY
         case []interface{}:
             return append(data.([]interface{}), value)
 
-        // MAP
+    //  parent element is a MAP
         case map[string]interface{}:
             dataMap := data.(map[string]interface{})
             dataMap[first] = value
@@ -175,7 +287,7 @@ func DeepSet(data interface{}, path []string, value interface{}) interface{} {
           //  is the value at `first' in the map isn't present or isn't an array, create it
           //  -------->
               curVal, _ := dataMap[first]
- 
+
               switch curVal.(type) {
               case []interface{}:
               default:
