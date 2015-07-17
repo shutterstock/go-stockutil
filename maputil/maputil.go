@@ -31,6 +31,18 @@ func MapValues(input map[string]interface{}) []interface{} {
     return values
 }
 
+func Join(input map[string]interface{}, innerJoiner string, outerJoiner string) string {
+    parts := make([]string, 0)
+
+    for key, value := range input {
+        if v, err := stringutil.ToString(value); err == nil {
+            parts = append(parts, key + innerJoiner + v)
+        }
+    }
+
+    return strings.Join(parts, outerJoiner)
+}
+
 // Take a flat (non-nested) map keyed with fields joined on fieldJoiner and return a
 // deeply-nested map
 //
