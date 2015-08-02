@@ -43,6 +43,21 @@ func Join(input map[string]interface{}, innerJoiner string, outerJoiner string) 
     return strings.Join(parts, outerJoiner)
 }
 
+func Split(input string, innerJoiner string, outerJoiner string) map[string]interface{} {
+    rv    := make(map[string]interface{})
+    pairs := strings.Split(input, outerJoiner)
+
+    for _, pair := range pairs {
+        kv := strings.SplitN(pair, innerJoiner, 2)
+
+        if len(kv) == 2 {
+            rv[ kv[0] ] = kv[1]
+        }
+    }
+
+    return rv
+}
+
 // Take a flat (non-nested) map keyed with fields joined on fieldJoiner and return a
 // deeply-nested map
 //
