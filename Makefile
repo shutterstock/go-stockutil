@@ -7,3 +7,6 @@ debug:
 
 test:
 	./build.sh test
+coverage:
+	./build.sh coverage
+

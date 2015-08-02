@@ -31,6 +31,11 @@ for pkg in *util; do
     test)
       CGO_ENABLED=0 go test -test.v -coverprofile $pkg-profile.file -a $GOFLAGS ${REPO_PATH}/$pkg
       ;;
+    coverage)
+      for i in *.file; do
+        go tool cover --html $i -o $(basename $i .file).html
+      done
+      ;;
     *)
       CGO_ENABLED=0 go build -a $GOFLAGS ${REPO_PATH}/$pkg
       ;;
