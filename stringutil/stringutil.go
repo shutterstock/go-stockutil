@@ -6,6 +6,7 @@ import (
     "reflect"
     "strconv"
     "strings"
+    "time"
 )
 
 type SiPrefix int
@@ -21,6 +22,29 @@ const (
     Yotta         = 8
 )
 
+type ConvertType int
+const (
+    String ConvertType = 0
+    Boolean            = 1
+    Float              = 2
+    Integer            = 3
+    Time               = 4
+)
+
+var DateConvertFormats = []string{
+    "2006-01-02 15:04:05",
+    "1136239445",
+    time.RFC3339,
+    time.ANSIC,
+    time.UnixDate,
+    time.RubyDate,
+    time.RFC822,
+    time.RFC822Z,
+    time.RFC1123,
+    time.RFC1123Z,
+    time.Kitchen,
+}
+
 func IsInteger(in string) bool {
     if _, err := strconv.Atoi(in); err == nil {
         return true
@@ -32,6 +56,15 @@ func IsInteger(in string) bool {
 
 func IsFloat(in string) bool {
     if _, err := strconv.ParseFloat(in, 64); err == nil {
+        return true
+    }
+
+    return false
+}
+
+
+func IsBoolean(in string) bool {
+    if in == `true` || in == `false` {
         return true
     }
 
@@ -122,5 +155,31 @@ func ToBytes(input string) (float64, error) {
         }else{
             return 0, fmt.Errorf("Unrecognized input string '%s'", input)
         }
+    }
+}
+
+func ConvertTo(toType ConvertType, in string) (interface{}, error) {
+    switch toType {
+    case Float:
+        return strconv.ParseFloat(in, 64)
+    case Integer:
+        return strconv.Atoi(in)
+    case Boolean:
+        if IsBoolean(in) {
+            return (in == `true`), nil
+        }else{
+            return nil, fmt.Errorf("Cannot convert '%s' into a boolean value", in)
+        }
+    case Time:
+        for _, format := range DateConvertFormats {
+            if tm, err := time.Parse(format, in); err == nil {
+                return tm, nil
+            }
+        }
+
+        return nil, fmt.Errorf("Cannot convert '%s' into a date/time value", in)
+
+    default:
+        return in, nil
     }
 }

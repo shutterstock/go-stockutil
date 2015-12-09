@@ -13,7 +13,7 @@ ln -s ${PWD} $GOPATH/src/${REPO_PATH}
 
 eval $(go env)
 
-go get code.google.com/p/go.tools/cmd/cover
+go get golang.org/x/tools/cmd/cover
 
 if [ -s DEPENDENCIES ]; then
   for d in $(cat DEPENDENCIES); do
