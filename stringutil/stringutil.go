@@ -163,7 +163,7 @@ func ConvertTo(toType ConvertType, in string) (interface{}, error) {
     case Float:
         return strconv.ParseFloat(in, 64)
     case Integer:
-        return strconv.Atoi(in)
+        return strconv.ParseInt(in, 10, 64)
     case Boolean:
         if IsBoolean(in) {
             return (in == `true`), nil
@@ -181,5 +181,45 @@ func ConvertTo(toType ConvertType, in string) (interface{}, error) {
 
     default:
         return in, nil
+    }
+}
+
+func ConvertToInteger(in string) (int64, error) {
+    if v, err := ConvertTo(Integer, in); err == nil {
+        return v.(int64), nil
+    }else{
+        return int64(0), err
+    }
+}
+
+func ConvertToFloat(in string) (float64, error) {
+    if v, err := ConvertTo(Float, in); err == nil {
+        return v.(float64), nil
+    }else{
+        return float64(0.0), err
+    }
+}
+
+func ConvertToString(in string) (string, error) {
+    if v, err := ConvertTo(String, in); err == nil {
+        return v.(string), nil
+    }else{
+        return ``, err
+    }
+}
+
+func ConvertToBool(in string) (bool, error) {
+    if v, err := ConvertTo(Boolean, in); err == nil {
+        return v.(bool), nil
+    }else{
+        return false, err
+    }
+}
+
+func ConvertToTime(in string) (time.Time, error) {
+    if v, err := ConvertTo(Time, in); err == nil {
+        return v.(time.Time), nil
+    }else{
+        return time.Time{}, err
     }
 }

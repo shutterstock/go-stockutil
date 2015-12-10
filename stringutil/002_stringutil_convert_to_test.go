@@ -33,8 +33,28 @@ func TestConvertToFloat(t *testing.T) {
         t.Errorf("Error during conversion: %v", err)
     }
 
+    if v, err := ConvertToFloat("1.5"); err == nil {
+        if v != float64(1.5) {
+            t.Errorf("Conversion yielded an incorrect result value: expected 1.5, got: %f", v)
+        }
+    }else{
+        t.Errorf("Error during conversion: %v", err)
+    }
+
+    if v, err := ConvertToFloat("1"); err == nil {
+        if v != float64(1.0) {
+            t.Errorf("Conversion yielded an incorrect result value: expected 1.0, got: %f", v)
+        }
+    }else{
+        t.Errorf("Error during conversion: %v", err)
+    }
+
     for _, fail := range []string{ `potato`, `true`, `2015-05-01 00:15:16` } {
         if _, err := ConvertTo(Float, fail); err == nil {
+            t.Errorf("Conversion should have failed for value '%s', but didn't", fail)
+        }
+
+        if _, err := ConvertToFloat(fail); err == nil {
             t.Errorf("Conversion should have failed for value '%s', but didn't", fail)
         }
     }
@@ -43,9 +63,9 @@ func TestConvertToFloat(t *testing.T) {
 func TestConvertToInteger(t *testing.T) {
     if v, err := ConvertTo(Integer, "7"); err == nil {
         switch v.(type) {
-        case int:
-            if v.(int) != 7 {
-                t.Errorf("Conversion yielded an incorrect result value: expected 7, got: %f", v.(int))
+        case int64:
+            if v.(int64) != int64(7) {
+                t.Errorf("Conversion yielded an incorrect result value: expected 7, got: %f", v.(int64))
             }
         default:
             t.Errorf("Conversion yielded an incorrect result type: expected int64, got: %T", v)
@@ -54,8 +74,20 @@ func TestConvertToInteger(t *testing.T) {
         t.Errorf("Error during conversion: %v", err)
     }
 
+    if v, err := ConvertToInteger("7"); err == nil {
+        if v != int64(7) {
+            t.Errorf("Conversion yielded an incorrect result value: expected 7, got: %f", v)
+        }
+    }else{
+        t.Errorf("Error during conversion: %v", err)
+    }
+
     for _, fail := range []string{ `0.0`, `1.5`, `potato`, `true`, `2015-05-01 00:15:16` } {
         if _, err := ConvertTo(Integer, fail); err == nil {
+            t.Errorf("Conversion should have failed for value '%s', but didn't", fail)
+        }
+
+        if _, err := ConvertToInteger(fail); err == nil {
             t.Errorf("Conversion should have failed for value '%s', but didn't", fail)
         }
     }
@@ -89,8 +121,28 @@ func TestConvertToBoolean(t *testing.T) {
         t.Errorf("Error during conversion: %v", err)
     }
 
+    if v, err := ConvertToBool("true"); err == nil {
+        if v != true {
+            t.Errorf("Conversion yielded an incorrect result value: expected true, got: %s", v)
+        }
+    }else{
+        t.Errorf("Error during conversion: %v", err)
+    }
+
+    if v, err := ConvertToBool("false"); err == nil {
+        if v != false {
+            t.Errorf("Conversion yielded an incorrect result value: expected false, got: %s", v)
+        }
+    }else{
+        t.Errorf("Error during conversion: %v", err)
+    }
+
     for _, fail := range []string{ `1.5`, `potato`, `1`, `2015-05-01 00:15:16` } {
         if _, err := ConvertTo(Boolean, fail); err == nil {
+            t.Errorf("Conversion should have failed for value '%s', but didn't", fail)
+        }
+
+        if _, err := ConvertToBool(fail); err == nil {
             t.Errorf("Conversion should have failed for value '%s', but didn't", fail)
         }
     }
@@ -120,10 +172,22 @@ func TestConvertToDate(t *testing.T) {
         }else{
             t.Errorf("Error during conversion: %v", err)
         }
+
+        if v, err := ConvertToTime(in); err == nil {
+            if v != out {
+                t.Errorf("Conversion yielded an incorrect result value from '%s': expected %s, got: %f", in, out, v)
+            }
+        }else{
+            t.Errorf("Error during conversion: %v", err)
+        }
     }
 
     for _, fail := range []string{ `1.5`, `potato`, `1`, `false` } {
         if _, err := ConvertTo(Time, fail); err == nil {
+            t.Errorf("Conversion should have failed for value '%s', but didn't", fail)
+        }
+
+        if _, err := ConvertToTime(fail); err == nil {
             t.Errorf("Conversion should have failed for value '%s', but didn't", fail)
         }
     }
